@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سالميات - مشغل الموسيقى العصري</title>
  
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&display=swap" rel="stylesheet">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="style.css"> <style>
+    /* ... (CSS الخاص بك كما هو) ... */
     a{ 
       color: #fdfcfb;
     }
@@ -13,7 +16,7 @@
       color: #8e3b46;
     }
     footer {
-      background: color pink ; 
+      background: color pink ; /* ملاحظة: يجب تعديل هذا ليصبح 'background-color: pink;' */
     }
     * {
       box-sizing: border-box;
@@ -106,13 +109,14 @@
       color: #241114;
       margin-bottom: 20px;
     }
-    audio {
+    /* تم إزالة هذا النمط لأنه لم يعد مطلوباً لـ <audio> الأساسي */
+    /* audio {
       width: 90%;
       max-width: 500px;
       border-radius: 10px;
       position: relative;
       right: 400px;
-    }
+    } */
     .poem {
       background: #fff2e6;
       margin: 50px auto;
@@ -141,11 +145,24 @@
       position: relative;
       right:10px;
     }
-    h3 {
+    /* تم إزالة هذا النمط لأنه لم يعد مطلوباً لـ <h3> */
+    /* h3 {
       position: relative;
       right: 400px;
+    } */
+    /* أنماط المشغل العصري (سيتم تحديثها في ملف style.css) */
+    .player-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 30px 20px;
+        max-width: 450px;
+        width: 90%;
+        margin: 40px auto;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
     }
-
   </style>
 </head>
 <body>
@@ -153,44 +170,65 @@
  <header> سالميات </header>
 
   <div class="hero">
-    <img src="c:\Users\N.G\Downloads\Telegram Desktop\photo_1_2025-06-21_18-31-12.jpg" alt="صورة رئيسية للفنان عبدالله السالم">
+    <img src="images/hero-image.jpg" alt="صورة رئيسية للفنان عبدالله السالم" onerror="this.style.display='none'">
   </div>
-s
+
   <nav>
     <a href="index.html">الرئيسية</a>
     <a href="nawader.html">نوادر الفنان</a>
-    <a href="c:\Users\N.G\Desktop\why us\fron-end\موقع ابو سامي\html log in .html"> صفحة تسجيل الدخول</a>
+    <a href="login.html"> صفحة تسجيل الدخول</a> 
   </nav>
 
   <div class="gallery">
-    <img src="photo_1_2025-06-21_18-31-12.jpg" alt="عبدالله السالم" onerror="this.style.display='none'" />
-    <img src="photo_2_2025-06-21_18-31-12.jpg" alt="عبدالله السالم" onerror="this.style.display='none'" />
-    <img src="photo_3_2025-06-21_18-31-12.jpg" alt="عبدالله السالم" onerror="this.style.display='none'" />
+    <img src="images/photo_1.jpg" alt="عبدالله السالم" onerror="this.style.display='none'" />
+    <img src="images/photo_2.jpg" alt="عبدالله السالم" onerror="this.style.display='none'" />
+    <img src="images/photo_3.jpg" alt="عبدالله السالم" onerror="this.style.display='none'" />
   </div>
- <div class="music-section">
+
+  <div class="music-section">
     <h2>اعجاز انامل السالم</h2>
-   <video controls>
-  <source src="c:\Users\N.G\Videos\Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic\video_2025-06-22_12-57-13.mp4" type="video/mp4">
-   </video>
-
-  </div class="audio">
-  <h3>  عبدالله السالم - جلسة مع الفنان فهد عبدالمحسن  </h3>
-  <audio controls>
-    <source src="c:\Users\N.G\Downloads\Telegram Desktop\عبدالله_السالم_شريط_رقم_5_الوجه_الاول_صدفتك@@.mp3" type="audio/mp3">
-    </audio>
     
-  </div class="audio">
-  <h3>   عبدالله السالم - جلسة مع الفنان فهد عبدالمحسن الوجه الثاني </h3>
-  <audio controls>
-  <source src="c:\Users\N.G\Downloads\Telegram Desktop\عبدالله_السالم_شريط_رقم_5_الوجه_الثاني_صدفتك_@.mp3" type="audio/mp3">
-  </audio>
-    </div class="audio">
-  <h3>  اضحك واخفي حزن الايام عندي صافية  </h3>
-  <audio controls>
-    <source src="c:\Users\N.G\Downloads\Telegram Desktop\5721535235.mp3" type="audio/mp3">
-    </audio>
+    </video>
 
-  <div class="poem">
+    <div class="player-container">
+        <div class="track-info">
+            <div class="track-art"></div>
+            <div class="track-details">
+                <div class="track-name">اسم الأغنية الحالية</div>
+                <div class="artist-name">اسم الفنان</div>
+            </div>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" value="0" id="seek-slider" class="seek-slider">
+            <div class="time-display">
+                <div class="current-time">0:00</div>
+                <div class="total-duration">0:00</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn" class="control-btn"><i class="fa fa-backward-step"></i></button>
+            <button id="play-pause-btn" class="control-btn large-btn"><i class="fa fa-play"></i></button>
+            <button id="next-btn" class="control-btn"><i class="fa fa-forward-step"></i></button>
+        </div>
+
+        <div class="volume-container">
+            <i class="fa fa-volume-low"></i>
+            <input type="range" min="0" max="1" step="0.01" value="1" id="volume-slider" class="volume-slider">
+            <i class="fa fa-volume-high"></i>
+        </div>
+
+         <div class="playlist-container">
+            <h3>قائمة الأغاني</h3>
+            <ul id="playlist">
+                </ul>
+        </div>
+
+        <audio id="audio-player" preload="metadata"></audio>
+    </div>
+
+  </div> <div class="poem">
     عن عيوني ياحياتي لا تغيب <br />
     غيبتك عن ناظري سبة بلاي
   </div>
@@ -199,9 +237,10 @@ s
     تصميم وتطوير: عمر العنزي © 2025 | سالميات 
   </footer>
 <footer> 
-  <a href="https://youtu.be/cOe9yC7YKZU?si=RH7pB4BLxeuHN7cC"> اغاني ابو منى </a><br> 
+  <a href="https://youtu.be/cOe9yC7YKZU?si=RH7pB4BLxehN7cC"> اغاني ابو منى </a><br> 
     <a href="https://www.youtube.com/watch?v=Plmo8_z2m54&list=RDcOe9yC7YKZU&index=5&pp=8AUB"> ابو منى اخر رساله</a>
 </footer>
      
-
+<script src="script.js"></script>
+</body>
 </html>
