@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>سالميات - المشغل العصري المتكامل (SPA)</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* ======================================= */
+        /* CSS: الأنماط والتصميم العصري القوي */
+        /* ======================================= */
+        
+        :root {
+            --primary-color: #8e3b46; /* الأحمر الداكن */
+            --secondary-color: #c94b62; /* الأحمر الفاتح */
+            --background-light: #fdfcfb;
+            --background-dark: #2c3e50;
+            --text-dark: #2d1b0e;
+            --text-light: #ecf0f1;
+            --player-bg: #4e4b49;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease-in-out; /* سلاسة الانتقال */
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(to bottom, var(--background-light), #e2d1c3);
+            color: var(--text-dark);
+            direction: rtl; 
+            min-height: 100vh;
+        }
+
+        /* رأس الصفحة والتنقل */
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        nav {
+            background: var(--player-bg);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            margin: 0 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+        nav button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.4s ease;
+        }
+        nav button:hover::before {
+            left: 0;
+        }
+        nav button.active-view {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--secondary-color);
+        }
+
+        /* نمط الحاويات الرئيسية */
+        .content-view {
+            padding: 40px 20px;
+            min-height: calc(100vh - 130px); /* يملأ بقية الشاشة */
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ======================================= */
+        /* أنماط تسجيل الدخول (Login/Admin) */
+        /* ======================================= */
+        .auth-container {
+            max-width: 400px;
+            margin: 60px auto;
+            padding: 40px;
+            background: var(--background-light);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-top: 5px solid var(--secondary-color);
+        }
+        .auth-container h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        .auth-container input[type="text"], 
+        .auth-container input[type="email"], 
+        .auth-container input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .auth-container button {
+            width: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            letter-spacing: 1px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .auth-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ======================================= */
+        /* المشغل (Player) والقائمة الرئيسية */
+        /* ======================================= */
+        .main-player-section {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 30px;
+        }
+        .player-container {
+            width: 380px;
+            padding: 30px;
+            background: var(--player-bg);
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .track-art {
+            width: 180px; height: 180px;
+            background: linear-gradient(to top right, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            margin-bottom: 15px;
+            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+        .playing .track-art { animation: rotate 10s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .controls { margin-top: 20px; display: flex; gap: 30px; }
+        .control-btn { 
+            background: none; border: none; color: var(--text-light); 
+            font-size: 1.4rem; cursor: pointer; padding: 10px; 
+            transition: color 0.3s, transform 0.1s; 
+        }
+        .control-btn:hover { color: var(--secondary-color); transform: scale(1.1); }
+        .large-btn { font-size: 2.5rem; color: var(--secondary-color); }
+        .large-btn:hover { color: var(--primary-color); }
+
+        .progress-area { width: 100%; margin-top: 20px; }
+        .seek-slider { width: 100%; height: 8px; background: #3a3836; border-radius: 4px; cursor: pointer; -webkit-appearance: none; appearance: none; }
+        .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--secondary-color); }
+        .time-display { display: flex; justify-content: space-between; font-size: 0.9rem; color: #e2d1c3; margin-top: 5px; }
+
+        /* قائمة الأغاني الكبيرة */
+        .track-list-section {
+            flex-grow: 1;
+            max-width: 600px;
+            background: var(--background-light);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        .track-list-section h2 { color: var(--primary-color); margin-bottom: 20px; border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; }
+        #user-track-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+            transition: background-color 0.2s;
+        }
+        #user-track-list li:hover { background-color: #f0e0e0; }
+        #user-track-list li .play-icon { color: var(--primary-color); font-size: 18px; }
+
+        /* شريط البحث */
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-bar input { flex-grow: 1; padding: 10px; border: 2px solid var(--primary-color); border-radius: 25px; font-family: inherit; }
+        .search-bar button { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; }
+
+
+        /* ======================================= */
+        /* لوحة تحكم المدير (Admin) */
+        /* ======================================= */
+        .admin-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            margin: 40px auto;
+            background: var(--background-light);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .admin-controls h2 { color: var(--primary-color); margin-bottom: 20px; }
+        .admin-controls input[type="text"], 
+        .admin-controls input[type="file"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        .admin-controls button.add-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .admin-controls button.add-btn:hover { background: var(--secondary-color); }
+        
+        #admin-track-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        #admin-track-list li button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #admin-track-list li button:hover { background: #d9667b; }
+
+        /* شاشات */
+        .hidden-view { display: none; }
+
+    </style>
+</head>
+<body>
+
+    <header> سالميات </header>
+
+    <nav>
+        <button id="nav-player" onclick="app.navigate('player')" class="active-view">المشغل</button>
+        <button id="nav-login" onclick="app.navigate('login')">تسجيل الدخول</button>
+        <button id="nav-admin" onclick="app.navigate('admin')">لوحة المدير</button>
+    </nav>
+
+    <main>
+        <section id="player-view" class="content-view">
+            <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 30px;">المكتبة الموسيقية</h2>
+
+            <div class="main-player-section">
+                <div class="player-container">
+                    <div class="track-info">
+                        <div class="track-art" id="player-track-art"></div>
+                        <div class="track-details" style="text-align: center;">
+                            <div class="track-name" id="player-track-name" style="font-size: 1.4rem; font-weight: bold;">لا توجد أغنية</div>
+                            <div class="artist-name" id="player-artist-name" style="color: #e2d1c3;">الرجاء إضافة أغنية</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-area">
+                        <input type="range" value="0" id="seek-slider" class="seek-slider">
+                        <div class="time-display">
+                            <div class="current-time" id="current-time">0:00</div>
+                            <div class="total-duration" id="total-duration">0:00</div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button id="prev-btn" class="control-btn"><i class="fa fa-backward-step"></i></button>
+                        <button id="play-pause-btn" class="control-btn large-btn"><i class="fa fa-play"></i></button>
+                        <button id="next-btn" class="control-btn"><i class="fa fa-forward-step"></i></button>
+                    </div>
+
+                    <div class="volume-container" style="display: flex; align-items: center; width: 80%; gap: 10px;">
+                        <i class="fa fa-volume-low"></i>
+                        <input type="range" min="0" max="1" step="0.01" value="1" id="volume-slider" class="seek-slider">
+                        <i class="fa fa-volume-high"></i>
+                    </div>
+
+                    <audio id="audio-player" preload="metadata"></audio>
+                </div>
+                
+                <div class="track-list-section">
+                    <div class="search-bar">
+                        <input type="text" id="user-search-input" placeholder="ابحث عن أغنية...">
+                        <button onclick="app.searchUserTracks()"><i class="fa fa-search"></i></button>
+                    </div>
+                    <ul id="user-track-list" style="list-style: none;">
+                        </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="login-view" class="content-view hidden-view">
+            <div class="auth-container">
+                <h2 id="auth-title">تسجيل الدخول</h2>
+                <input type="email" id="login-email" placeholder="البريد الإلكتروني (المدير: admin@salmyat.com)">
+                <input type="password" id="login-password" placeholder="كلمة المرور (المدير: 123456)">
+                <button onclick="app.handleLogin()">دخول</button>
+                <p id="login-message" style="color: var(--secondary-color); text-align: center; margin-top: 15px;"></p>
+            </div>
+        </section>
+
+        <section id="admin-view" class="content-view hidden-view">
+            <div class="admin-controls">
+                <h2>إضافة أغنية جديدة</h2>
+                <input type="text" id="admin-track-name" placeholder="اسم الأغنية">
+                <input type="text" id="admin-artist-name" placeholder="اسم الفنان">
+                <input type="text" id="admin-track-path" placeholder="مسار ملف الأغنية (مثال: tracks/new_song.mp3)">
+                <input type="text" id="admin-cover-path" placeholder="مسار غلاف الأغنية (مثال: images/new_cover.jpg)">
+                <button class="add-btn" onclick="app.addTrack()">إضافة الأغنية</button>
+            </div>
+
+            <div class="admin-controls">
+                <h2>قائمة الأغاني الحالية (إدارة)</h2>
+                <ul id="admin-track-list" style="list-style: none;">
+                    </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background-color: var(--player-bg); color: var(--text-light); padding: 20px; text-align: center;">
+        تصميم وتطوير: عمر العنزي - سالميات © 2025
+    </footer>
+
+    <script>
+        // =======================================
+        // JavaScript: منطق التطبيق والمشغل
+        // =======================================
+        const app = {
+            // بيانات المدير (للتجربة)
+            ADMIN_EMAIL: 'oalanzi522@gmail.com',
+            ADMIN_PASSWORD: '@Abosami1958',
+            
+            // تهيئة بيانات المشغل
+            allTracks: [],
+            currentTrackIndex: 0,
+            isPlaying: false,
+            audioPlayer: document.getElementById('audio-player'),
+
+            // العناصر
+            views: {
+                player: document.getElementById('player-view'),
+                login: document.getElementById('login-view'),
+                admin: document.getElementById('admin-view'),
+            },
+
+            // =======================================
+            // وظائف بدء وإدارة البيانات
+            // =======================================
+            
+            init() {
+                this.loadTracks();
+                this.setupNavigation();
+                this.setupPlayerListeners();
+                this.renderUserTracks(this.allTracks);
+                this.renderAdminTracks(this.allTracks);
+                this.navigate('player');
+            },
+
+            loadTracks() {
+                // محاولة تحميل الأغاني من ذاكرة التخزين المحلية أو استخدام قائمة تجريبية
+                const savedTracks = localStorage.getItem('salmyat_tracks');
+                if (savedTracks) {
+                    this.allTracks = JSON.parse(savedTracks);
+                } else {
+                    // قائمة تجريبية إذا لم يتم حفظ أي شيء
+                    this.allTracks = [
+                        { id: 1, name:" احزان ليلي ", artist: "عبدالله السالم", path: "عبدالله السالم احزان ليلي جديد (mp3).mp3", cover: "C:\Users\N.G\Desktop\why us\fron-end\a test\images\photo_1_2025-10-11_15-29-28.jpg" },
+                        { id: 2, name: "جفت دوع العين جديد", artist: "عبدالله السالم", path: "c:\Users\N.G\Desktop\why us\fron-end\a test\tracks\عبدالله السالم جفت دموع العين  جديد  (mp3).mp3", cover: "c:\Users\N.G\Desktop\why us\fron-end\a test\images\photo_2_2025-10-11_15-29-28.jpg" },
+                    
+                    ];
+                    this.saveTracks();
+                }
+                if (this.allTracks.length > 0) {
+                    this.loadTrack(0);
+                }
+            },
+
+            saveTracks() {
+                // حفظ البيانات في التخزين المحلي
+                localStorage.setItem('salmyat_tracks', JSON.stringify(this.allTracks));
+            },
+
+            // =======================================
+            // وظائف التنقل (Routing)
+            // =======================================
+            
+            navigate(viewName) {
+                // إخفاء كل الصفحات
+                Object.values(this.views).forEach(view => view.classList.add('hidden-view'));
+                // إظهار الصفحة المطلوبة
+                this.views[viewName].classList.remove('hidden-view');
+
+                // تحديث حالة زر التنقل النشط
+                document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active-view'));
+                document.getElementById(`nav-${viewName}`).classList.add('active-view');
+
+                // إعادة تحميل بيانات المدير عند الانتقال لصفحته
+                if (viewName === 'admin') {
+                    this.renderAdminTracks(this.allTracks);
+                }
+            },
+
+            setupNavigation() {
+                // يجب أن تكون أزرار المدير/التسجيل مرئية/مخفية حسب حالة تسجيل الدخول الفعلية
+                // لكن هنا نعتمد على النقر للانتقال (كما طلبت)
+            },
+
+            // =======================================
+            // وظائف تسجيل الدخول (Login)
+            // =======================================
+            
+            handleLogin() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const message = document.getElementById('login-message');
+
+                if (email === this.ADMIN_EMAIL && password === this.ADMIN_PASSWORD) {
+                    message.textContent = 'تم تسجيل الدخول بنجاح! جارٍ التوجيه للوحة المدير...';
+                    message.style.color = 'green';
+                    setTimeout(() => {
+                        this.navigate('admin');
+                        message.textContent = '';
+                    }, 1500);
+                } else {
+                    message.textContent = 'خطأ في البريد أو كلمة المرور. حاول مجددًا.';
+                    message.style.color = 'var(--secondary-color)';
+                }
+            },
+            
+            // =======================================
+            // وظائف المدير (Admin)
+            // =======================================
+            
+            addTrack() {
+                const name = document.getElementById('admin-track-name').value;
+                const artist = document.getElementById('admin-artist-name').value;
+                const path = document.getElementById('admin-track-path').value;
+                const cover = document.getElementById('admin-cover-path').value;
+
+                if (name && artist && path && cover) {
+                    const newId = this.allTracks.length ? Math.max(...this.allTracks.map(t => t.id)) + 1 : 1;
+                    this.allTracks.push({ id: newId, name, artist, path, cover });
+                    this.saveTracks();
+                    this.renderAdminTracks(this.allTracks);
+                    this.renderUserTracks(this.allTracks);
+                    
+                    // تنظيف الحقول
+                    document.getElementById('admin-track-name').value = '';
+                    document.getElementById('admin-artist-name').value = '';
+                    document.getElementById('admin-track-path').value = '';
+                    document.getElementById('admin-cover-path').value = '';
+                    alert('تم إضافة الأغنية بنجاح!');
+                } else {
+                    alert('الرجاء تعبئة جميع الحقول.');
+                }
+            },
+
+            deleteTrack(trackId) {
+                if (confirm('هل أنت متأكد من حذف هذه الأغنية؟')) {
+                    this.allTracks = this.allTracks.filter(t => t.id !== trackId);
+                    this.saveTracks();
+                    this.renderAdminTracks(this.allTracks);
+                    this.renderUserTracks(this.allTracks);
+                    
+                    // إعادة تحميل المشغل إذا حذفت الأغنية الحالية
+                    if (this.currentTrackIndex >= this.allTracks.length) {
+                        this.currentTrackIndex = 0;
+                    }
+                    if (this.allTracks.length > 0) {
+                        this.loadTrack(this.currentTrackIndex);
+                    } else {
+                        // إيقاف المشغل إذا كانت القائمة فارغة
+                        this.stopTrack();
+                    }
+                }
+            },
+
+            renderAdminTracks(tracks) {
+                const list = document.getElementById('admin-track-list');
+                list.innerHTML = '';
+                tracks.forEach(track => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${track.name} - ${track.artist}</span>
+                        <button onclick="app.deleteTrack(${track.id})">حذف</button>
+                    `;
+                    list.appendChild(li);
+                });
+            },
+
+            // =======================================
+            // وظائف قائمة المستخدم والبحث
+            // =======================================
+            
+            searchUserTracks() {
+                const searchTerm = document.getElementById('user-search-input').value.toLowerCase();
+                const filtered = this.allTracks.filter(track => 
+                    track.name.toLowerCase().includes(searchTerm) || 
+                    track.artist.toLowerCase().includes(searchTerm)
+                );
+                this.renderUserTracks(filtered);
+            },
+
+            renderUserTracks(tracks) {
+                const list = document.getElementById('user-track-list');
+                list.innerHTML = '';
+                tracks.forEach((track, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="track-name-display">${track.name} - ${track.artist}</span>
+                        <i class="fa fa-play play-icon"></i>
+                    `;
+                    li.addEventListener('click', () => {
+                        const globalIndex = this.allTracks.findIndex(t => t.id === track.id);
+                        if (globalIndex !== -1) {
+                            this.currentTrackIndex = globalIndex;
+                            this.loadTrack(this.currentTrackIndex);
+                            this.playPauseTrack(true);
+                        }
+                    });
+                    list.appendChild(li);
+                });
+            },
+
+
+            // =======================================
+            // وظائف المشغل (Player Logic)
+            // =======================================
+
+            loadTrack(index) {
+                if (this.allTracks.length === 0) return this.stopTrack();
+                this.currentTrackIndex = index;
+                const track = this.allTracks[this.currentTrackIndex];
+                
+                this.audioPlayer.src = track.path;
+                document.getElementById('player-track-name').textContent = track.name;
+                document.getElementById('player-artist-name').textContent = track.artist;
+                document.getElementById('player-track-art').style.backgroundImage = `url('${track.cover}')`;
+                
+                this.audioPlayer.load();
+                document.getElementById('seek-slider').value = 0; 
+                document.getElementById('current-time').textContent = "0:00";
+            },
+            
+            playPauseTrack(forcePlay = false) {
+                if (this.allTracks.length === 0) return;
+                const playerContainer = document.querySelector('.player-container');
+                const playPauseBtn = document.getElementById('play-pause-btn');
+
+                if (!this.isPlaying || forcePlay) {
+                    this.audioPlayer.play();
+                    this.isPlaying = true;
+                    playPauseBtn.innerHTML = '<i class="fa fa-pause"></i>';
+                    playerContainer.classList.add('playing');
+                } else {
+                    this.audioPlayer.pause();
+                    this.isPlaying = false;
+                    playPauseBtn.innerHTML = '<i class="fa fa-play"></i>';
+                    playerContainer.classList.remove('playing');
+                }
+            },
+            
+            stopTrack() {
+                this.audioPlayer.pause();
+                this.audioPlayer.currentTime = 0;
+                this.isPlaying = false;
+                document.getElementById('player-track-name').textContent = 'لا توجد أغنية';
+                document.getElementById('player-artist-name').textContent = 'القائمة فارغة';
+                document.getElementById('play-pause-btn').innerHTML = '<i class="fa fa-play"></i>';
+                document.querySelector('.player-container').classList.remove('playing');
+            },
+
+            nextTrack() {
+                if (this.allTracks.length === 0) return;
+                this.currentTrackIndex = (this.currentTrackIndex + 1) % this.allTracks.length;
+                this.loadTrack(this.currentTrackIndex);
+                this.playPauseTrack(true);
+            },
+            
+            prevTrack() {
+                if (this.allTracks.length === 0) return;
+                this.currentTrackIndex = (this.currentTrackIndex - 1 + this.allTracks.length) % this.allTracks.length;
+                this.loadTrack(this.currentTrackIndex);
+                this.playPauseTrack(true);
+            },
+
+            formatTime(seconds) {
+                if (isNaN(seconds)) return "0:00";
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+            },
+
+            setupPlayerListeners() {
+                document.getElementById('play-pause-btn').addEventListener('click', () => this.playPauseTrack());
+                document.getElementById('next-btn').addEventListener('click', () => this.nextTrack());
+                document.getElementById('prev-btn').addEventListener('click', () => this.prevTrack());
+
+                this.audioPlayer.addEventListener('timeupdate', () => {
+                    const currentTime = this.audioPlayer.currentTime;
+                    const duration = this.audioPlayer.duration;
+                    const seekSlider = document.getElementById('seek-slider');
+                    
+                    if (isFinite(duration)) {
+                        seekSlider.value = (currentTime / duration) * 100;
+                        document.getElementById('current-time').textContent = this.formatTime(currentTime);
+                    }
+                });
+
+                this.audioPlayer.addEventListener('loadedmetadata', () => {
+                    const duration = this.audioPlayer.duration;
+                    document.getElementById('total-duration').textContent = this.formatTime(duration);
+                });
+
+                document.getElementById('seek-slider').addEventListener('input', (e) => {
+                    const duration = this.audioPlayer.duration;
+                    if (isFinite(duration)) {
+                        this.audioPlayer.currentTime = (e.target.value / 100) * duration;
+                    }
+                });
+                
+                document.getElementById('volume-slider').addEventListener('input', (e) => {
+                    this.audioPlayer.volume = e.target.value;
+                });
+                
+                this.audioPlayer.addEventListener('ended', () => this.nextTrack());
+            }
+        };
+
+        // تشغيل التطبيق عند تحميل الصفحة بالكامل
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
