@@ -35,6 +35,8 @@ Pipeline (ترابط القرارات):
 | `domain/decision.py` | محرك التوافق وكشف نظام السوق |
 | `domain/features.py` | حساب المؤشرات (numpy/pandas) وتحويلها لأدلة |
 | `agent/analyst.py` | **عقدة المحلل الذكي** (Claude) — سياق + فيتو + شرح |
+| `backtest/engine.py` | محرك الاختبار التاريخي (بلا Look-ahead) |
+| `backtest/metrics.py` | مقاييس الأداء (شارب، تراجع، عامل ربح...) |
 | `pipeline.py` | ربط القرارات من الإشارة إلى التوصية (مع/بدون ذكاء) |
 | `webhook/app.py` | مستقبِل TradingView الآمن |
 | `notify/telegram.py` | تنسيق وإرسال التوصيات |
@@ -70,10 +72,22 @@ uvicorn tradingbot.webhook.app:create_app --factory --host 0.0.0.0 --port 8000
 - [x] مستقبِل Webhook آمن + إشعار تليجرام
 - [x] محرك المؤشرات (numpy/pandas) — حساب بتحكم كامل
 - [x] طبقة الذكاء (Claude) — سياق + فيتو + تعديل ثقة (تراجع آمن بلا مفتاح)
+- [x] محرك Backtesting + مقاييس (Sharpe / Sortino / Drawdown / Win rate / Profit factor)
 - [ ] ربط IBKR الفعلي (`ib_insync`) على حساب Paper
 - [ ] أزرار موافقة تليجرام (وضع SEMI_AUTO)
-- [ ] محرك Backtesting + مقاييس (Sharpe / Drawdown / Win rate)
 - [ ] Paper trading أسابيع قبل أي حساب حقيقي
+
+## الاختبار التاريخي
+
+```bash
+# بيانات اصطناعية (عرض)
+python -m tradingbot.backtest.run_demo
+# على بياناتك (CSV بأعمدة open,high,low,close,volume)
+python -m tradingbot.backtest.run_demo data/aapl_1h.csv
+```
+
+⚠️ نتائج الاختبار التاريخي **ليست ضماناً** للمستقبل. تُستخدم لقياس الأفضلية
+الإحصائية ومقارنة الاستراتيجيات، ويجب أن تتبعها فترة Paper trading.
 
 ## أوضاع التشغيل
 
