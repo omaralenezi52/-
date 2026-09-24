@@ -12,8 +12,8 @@ pandas>=2.2
 # الذكاء — عقدة المحلل عبر Claude
 anthropic>=1.0
 
-# التنفيذ عبر Interactive Brokers (اختياري حتى التفعيل)
-# ib_insync>=0.9.86
+# التنفيذ عبر Interactive Brokers (فعّله عند ربط حسابك + TWS/Gateway)
+ib_insync>=0.9.86
 
 # الاختبارات
 pytest>=8.3

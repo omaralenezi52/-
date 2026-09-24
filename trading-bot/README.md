@@ -62,9 +62,23 @@ cp .env.example .env          # ثم عدّل القيم (WEBHOOK_SECRET إلز�
 # الاختبارات
 pytest
 
-# تشغيل مستقبِل الـ Webhook (خلف HTTPS في الإنتاج)
-uvicorn tradingbot.webhook.app:create_app --factory --host 0.0.0.0 --port 8000
+# تشغيل النظام الكامل (Webhook + تحليل + تنفيذ) خلف HTTPS في الإنتاج
+uvicorn tradingbot.serve:app --host 0.0.0.0 --port 8000
 ```
+
+### ربط منصتك (تحط بياناتك في `.env` فقط)
+
+```env
+BROKER=ibkr            # paper | ibkr | derayah
+IBKR_HOST=127.0.0.1
+IBKR_PORT=7497         # 7497 = Paper، 7496 = Live (ابدأ Paper)
+IBKR_CLIENT_ID=1
+ANTHROPIC_API_KEY=...  # لتفعيل طبقة الذكاء (فارغ ⇒ محلل محايد آمن)
+TRADE_MODE=ADVISOR     # ADVISOR (توصية) → SEMI_AUTO → FULL_AUTO
+```
+
+لتفعيل IBKR: شغّل TWS أو IB Gateway، فعّل API في إعداداتهما، ثم
+`pip install ib_insync` وضع `BROKER=ibkr`. الكود يلتقط الباقي تلقائياً.
 
 ## خريطة الطريق
 
@@ -73,7 +87,7 @@ uvicorn tradingbot.webhook.app:create_app --factory --host 0.0.0.0 --port 8000
 - [x] محرك المؤشرات (numpy/pandas) — حساب بتحكم كامل
 - [x] طبقة الذكاء (Claude) — سياق + فيتو + تعديل ثقة (تراجع آمن بلا مفتاح)
 - [x] محرك Backtesting + مقاييس (Sharpe / Sortino / Drawdown / Win rate / Profit factor)
-- [ ] ربط IBKR الفعلي (`ib_insync`) على حساب Paper
+- [x] ربط IBKR الفعلي (`ib_insync`) + تجميع كامل (Wiring) جاهز للبيانات
 - [ ] أزرار موافقة تليجرام (وضع SEMI_AUTO)
 - [ ] Paper trading أسابيع قبل أي حساب حقيقي
 
