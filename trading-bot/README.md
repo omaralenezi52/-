@@ -33,7 +33,9 @@ Pipeline (ترابط القرارات):
 | `domain/models.py` | النماذج الأساسية (Signal, TradePlan, Recommendation...) |
 | `domain/risk.py` | **حاكم المخاطر** — يعتمد/يرفض ويحسب الحجم |
 | `domain/decision.py` | محرك التوافق وكشف نظام السوق |
-| `pipeline.py` | ربط القرارات من الإشارة إلى التوصية |
+| `domain/features.py` | حساب المؤشرات (numpy/pandas) وتحويلها لأدلة |
+| `agent/analyst.py` | **عقدة المحلل الذكي** (Claude) — سياق + فيتو + شرح |
+| `pipeline.py` | ربط القرارات من الإشارة إلى التوصية (مع/بدون ذكاء) |
 | `webhook/app.py` | مستقبِل TradingView الآمن |
 | `notify/telegram.py` | تنسيق وإرسال التوصيات |
 | `adapters/` | محوّلات المنصات (Paper / IBKR / Derayah) |
@@ -66,7 +68,8 @@ uvicorn tradingbot.webhook.app:create_app --factory --host 0.0.0.0 --port 8000
 
 - [x] النواة: نماذج + حاكم مخاطر + محرك قرار + Pipeline + اختبارات
 - [x] مستقبِل Webhook آمن + إشعار تليجرام
-- [ ] طبقة الذكاء (LangGraph + Claude) للتحليل النصّي والسياق
+- [x] محرك المؤشرات (numpy/pandas) — حساب بتحكم كامل
+- [x] طبقة الذكاء (Claude) — سياق + فيتو + تعديل ثقة (تراجع آمن بلا مفتاح)
 - [ ] ربط IBKR الفعلي (`ib_insync`) على حساب Paper
 - [ ] أزرار موافقة تليجرام (وضع SEMI_AUTO)
 - [ ] محرك Backtesting + مقاييس (Sharpe / Drawdown / Win rate)

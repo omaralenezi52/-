@@ -97,3 +97,74 @@ def run_pipeline(
         reasons=conf.reasons,
         rationale=rationale,
     )
+
+
+def run_pipeline_with_analyst(
+    signal: Signal,
+    evidences: list[Evidence],
+    account: AccountState,
+    decision_engine: DecisionEngine,
+    risk_engine: RiskEngine,
+    analyst,
+    features: dict | None = None,
+) -> Recommendation:
+    """
+    نسخة كاملة مع طبقة الذكاء: تُدرج حكم المحلل (LLM) بين التوافق والمخاطر.
+
+    التسلسل: توافق الأدلة → المحلل (فيتو + تعديل ثقة + شرح) → حاكم المخاطر.
+    المحلل *مستشار*: يقدر يخفض/يرفع الثقة أو يعترض (veto)، لكن حاكم المخاطر
+    يبقى الفيصل النهائي، وأي فشل في المحلل يكمل النظام بأمان.
+    """
+    # 1) توافق الأدلة الحتمي
+    conf = decision_engine.evaluate(signal, evidences)
+    if conf.decision == Decision.WAIT:
+        return Recommendation(
+            symbol=signal.symbol, decision=Decision.WAIT,
+            confidence=conf.confidence, regime=conf.regime, reasons=conf.reasons,
+        )
+
+    # 2) حكم المحلل الذكي (لا يحسب أرقاماً — يقرأ ويحكم)
+    view = analyst.analyze(
+        symbol=signal.symbol,
+        features=features or signal.indicators,
+        evidences=evidences,
+        regime=conf.regime.value,
+    )
+
+    # فيتو المحلل: سبب سياقي لإلغاء الصفقة رغم توافق المؤشرات
+    if view.veto or view.bias == "NEUTRAL":
+        return Recommendation(
+            symbol=signal.symbol, decision=Decision.WAIT,
+            confidence=conf.confidence, regime=conf.regime, reasons=conf.reasons,
+            rationale=view.rationale,
+            rejection_reason="فيتو المحلل" if view.veto else None,
+        )
+
+    # تعديل الثقة برأي المحلل (محصور بين 0 و 1)
+    adjusted_conf = max(0.0, min(1.0, conf.confidence + view.confidence_adjustment))
+
+    # 3) اشتقاق المستويات
+    stop_loss, take_profit = derive_levels(signal)
+
+    # 4) حاكم المخاطر (الفيصل النهائي)
+    risk = risk_engine.evaluate(
+        signal=signal, stop_loss=stop_loss, take_profit=take_profit,
+        account=account, confidence=adjusted_conf,
+    )
+    if not risk.approved:
+        return Recommendation(
+            symbol=signal.symbol, decision=Decision.REJECT,
+            confidence=adjusted_conf, regime=conf.regime, reasons=conf.reasons,
+            rationale=view.rationale, rejection_reason=risk.reason,
+        )
+
+    # 5) توصية نهائية مع شرح المحلل
+    return Recommendation(
+        symbol=signal.symbol,
+        decision=conf.decision,
+        confidence=adjusted_conf,
+        regime=conf.regime,
+        plan=risk.plan,
+        reasons=conf.reasons,
+        rationale=view.rationale,
+    )
