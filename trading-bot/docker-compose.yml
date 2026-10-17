@@ -1,0 +1,19 @@
+# تشغيل البوت على VPS بخدمتين: خادم الـ Webhook + الحلقة الحية.
+# الأسرار تُقرأ من ملف .env (لا تُكتب هنا ولا تُرفع لـ Git).
+
+services:
+  # خادم استقبال إشارات TradingView (اختياري لو تعتمد الحلقة الحية فقط)
+  webhook:
+    build: .
+    restart: always          # يرجع تلقائياً لو تعطّل
+    env_file: .env
+    ports:
+      - "8000:8000"
+    command: uvicorn tradingbot.serve:app --host 0.0.0.0 --port 8000
+
+  # الحلقة الحية: تراقب الرموز وتقرر لحالها
+  live:
+    build: .
+    restart: always
+    env_file: .env
+    command: python -m tradingbot.run_live AAPL MSFT NVDA

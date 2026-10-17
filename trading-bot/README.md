@@ -121,6 +121,14 @@ python run_backtest.py AAPL --start 2022-01-01 --end 2024-12-31
 python -m tradingbot.run_live AAPL MSFT NVDA
 ```
 
+### النشر 24/7 (استضافة)
+
+راجع [DEPLOYMENT.md](DEPLOYMENT.md) — نشر عبر Docker على VPS:
+```bash
+cp .env.example .env    # املأ مفاتيحك
+docker compose up -d --build
+```
+
 ⚠️ نتائج الاختبار التاريخي **ليست ضماناً** للمستقبل. تُستخدم لقياس الأفضلية
 الإحصائية ومقارنة الاستراتيجيات، ويجب أن تتبعها فترة Paper trading.
 
