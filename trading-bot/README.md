@@ -98,6 +98,7 @@ IBKR_PORT=7497         # 7497 = Paper، 7496 = Live
 - [x] محرك Backtesting + مقاييس (Sharpe / Sortino / Drawdown / Win rate / Profit factor)
 - [x] ربط IBKR الفعلي (`ib_insync`) + تجميع كامل (Wiring) جاهز للبيانات
 - [x] ربط Alpaca (تنفيذ + جلب بيانات سحابي) جاهز للمفاتيح
+- [x] الحلقة الحية (جلب → تحليل → قرار → تنفيذ) ذاتية التشغيل
 - [ ] أزرار موافقة تليجرام (وضع SEMI_AUTO)
 - [ ] Paper trading أسابيع قبل أي حساب حقيقي
 
@@ -108,6 +109,16 @@ IBKR_PORT=7497         # 7497 = Paper، 7496 = Live
 python -m tradingbot.backtest.run_demo
 # على بياناتك (CSV بأعمدة open,high,low,close,volume)
 python -m tradingbot.backtest.run_demo data/aapl_1h.csv
+
+# على بيانات حقيقية من Yahoo (شغّله على جهازك)
+pip install yfinance
+python run_backtest.py AAPL --start 2022-01-01 --end 2024-12-31
+```
+
+### تشغيل الحلقة الحية (بعد ضبط .env)
+
+```bash
+python -m tradingbot.run_live AAPL MSFT NVDA
 ```
 
 ⚠️ نتائج الاختبار التاريخي **ليست ضماناً** للمستقبل. تُستخدم لقياس الأفضلية
