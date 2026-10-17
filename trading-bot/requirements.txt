@@ -12,7 +12,10 @@ pandas>=2.2
 # الذكاء — عقدة المحلل عبر Claude
 anthropic>=1.0
 
-# التنفيذ عبر Interactive Brokers (فعّله عند ربط حسابك + TWS/Gateway)
+# Alpaca — تنفيذ وبيانات سحابية (الأسهل؛ فعّله بوضع BROKER=alpaca)
+alpaca-py>=0.33
+
+# التنفيذ عبر Interactive Brokers (بديل؛ يحتاج TWS/Gateway)
 ib_insync>=0.9.86
 
 # الاختبارات

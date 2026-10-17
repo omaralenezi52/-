@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import uuid
 
+from .adapters.alpaca import AlpacaAdapter
 from .adapters.base import BrokerAdapter, NotSupportedError
 from .adapters.derayah import DerayahAdapter
 from .adapters.ibkr import IBKRAdapter
@@ -32,6 +33,12 @@ logger = logging.getLogger("tradingbot.app")
 
 def build_broker(settings: Settings) -> BrokerAdapter:
     """يختار المنصة حسب الإعداد. IBKR يتصل عند البناء إذا اختير."""
+    if settings.broker == "alpaca":
+        return AlpacaAdapter(
+            api_key=settings.alpaca_api_key,
+            secret_key=settings.alpaca_secret_key,
+            paper=settings.alpaca_paper,
+        )
     if settings.broker == "ibkr":
         adapter = IBKRAdapter(
             host=settings.ibkr_host,

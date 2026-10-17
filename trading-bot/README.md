@@ -40,7 +40,8 @@ Pipeline (ترابط القرارات):
 | `pipeline.py` | ربط القرارات من الإشارة إلى التوصية (مع/بدون ذكاء) |
 | `webhook/app.py` | مستقبِل TradingView الآمن |
 | `notify/telegram.py` | تنسيق وإرسال التوصيات |
-| `adapters/` | محوّلات المنصات (Paper / IBKR / Derayah) |
+| `adapters/` | محوّلات المنصات (Paper / Alpaca / IBKR / Derayah) |
+| `data/alpaca_feed.py` | جلب شموع OHLCV من Alpaca لمحرك المؤشرات |
 
 ## نقاط الأمان المُغلقة
 
@@ -66,15 +67,23 @@ pytest
 uvicorn tradingbot.serve:app --host 0.0.0.0 --port 8000
 ```
 
-### ربط منصتك (تحط بياناتك في `.env` فقط)
+### ربط منصتك (تحط بياناتك في `.env` فقط — لا تشاركها مع أحد)
 
+**Alpaca (موصى به — سحابي، الأسهل):**
 ```env
-BROKER=ibkr            # paper | ibkr | derayah
+BROKER=alpaca
+ALPACA_API_KEY=...     # من لوحة Alpaca؛ تبقى عندك فقط
+ALPACA_SECRET_KEY=...
+ALPACA_PAPER=true      # ابدأ تجريبي
+ANTHROPIC_API_KEY=...  # لتفعيل الذكاء (فارغ ⇒ محلل محايد آمن)
+TRADE_MODE=ADVISOR     # ADVISOR → SEMI_AUTO → FULL_AUTO
+```
+
+**أو Interactive Brokers (يحتاج TWS/Gateway مشغّلاً):**
+```env
+BROKER=ibkr
 IBKR_HOST=127.0.0.1
-IBKR_PORT=7497         # 7497 = Paper، 7496 = Live (ابدأ Paper)
-IBKR_CLIENT_ID=1
-ANTHROPIC_API_KEY=...  # لتفعيل طبقة الذكاء (فارغ ⇒ محلل محايد آمن)
-TRADE_MODE=ADVISOR     # ADVISOR (توصية) → SEMI_AUTO → FULL_AUTO
+IBKR_PORT=7497         # 7497 = Paper، 7496 = Live
 ```
 
 لتفعيل IBKR: شغّل TWS أو IB Gateway، فعّل API في إعداداتهما، ثم
@@ -88,6 +97,7 @@ TRADE_MODE=ADVISOR     # ADVISOR (توصية) → SEMI_AUTO → FULL_AUTO
 - [x] طبقة الذكاء (Claude) — سياق + فيتو + تعديل ثقة (تراجع آمن بلا مفتاح)
 - [x] محرك Backtesting + مقاييس (Sharpe / Sortino / Drawdown / Win rate / Profit factor)
 - [x] ربط IBKR الفعلي (`ib_insync`) + تجميع كامل (Wiring) جاهز للبيانات
+- [x] ربط Alpaca (تنفيذ + جلب بيانات سحابي) جاهز للمفاتيح
 - [ ] أزرار موافقة تليجرام (وضع SEMI_AUTO)
 - [ ] Paper trading أسابيع قبل أي حساب حقيقي
 

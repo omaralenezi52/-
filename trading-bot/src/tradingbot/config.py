@@ -27,7 +27,11 @@ class Settings:
     ibkr_port: int = 7497          # 7497 = Paper، 7496 = Live
     ibkr_client_id: int = 1
     ibkr_account: str = ""
-    broker: str = "paper"          # paper | ibkr | derayah
+    # إعدادات Alpaca (تحط مفاتيحك عبر .env — لا تُكتب في الكود)
+    alpaca_api_key: str = ""
+    alpaca_secret_key: str = ""
+    alpaca_paper: bool = True
+    broker: str = "paper"          # paper | alpaca | ibkr | derayah
     # وضع التشغيل الافتراضي — الأكثر أماناً
     mode: TradeMode = TradeMode.ADVISOR
 
@@ -60,6 +64,9 @@ class Settings:
             ibkr_port=_int("IBKR_PORT", 7497),
             ibkr_client_id=_int("IBKR_CLIENT_ID", 1),
             ibkr_account=os.environ.get("IBKR_ACCOUNT", "").strip(),
+            alpaca_api_key=os.environ.get("ALPACA_API_KEY", "").strip(),
+            alpaca_secret_key=os.environ.get("ALPACA_SECRET_KEY", "").strip(),
+            alpaca_paper=os.environ.get("ALPACA_PAPER", "true").strip().lower() in ("true", "1", "yes"),
             broker=os.environ.get("BROKER", "paper").strip().lower(),
             mode=mode,
         )
