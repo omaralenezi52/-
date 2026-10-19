@@ -70,7 +70,11 @@ class TelegramBot:
                          timeout=30.0)
         for update in resp.json().get("result", []):
             self._offset = update["update_id"]
-            reply = self.handle_update(update)
+            try:
+                reply = self.handle_update(update)
+            except Exception:
+                logger.exception("فشل معالجة تحديث تليجرام")
+                reply = "⚠️ حدث خطأ أثناء تنفيذ الأمر — تحقّق من السجلّ."
             if reply:
                 self.app.notifier.send_text(reply)
 

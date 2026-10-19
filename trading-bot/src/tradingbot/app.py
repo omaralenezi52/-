@@ -118,17 +118,25 @@ class TradingApp:
         return "❌ تم التجاهل." if rec else "⚠️ التوصية لم تعد متاحة."
 
     def status_text(self) -> str:
-        """ملخص حالة البوت لأمر /status."""
-        acc = self.broker.get_account_state()
-        return (
+        """ملخص حالة البوت لأمر /status (لا يفشل حتى لو المنصة غير متاحة)."""
+        head = (
             f"🤖 حالة البوت\n"
             f"الوضع: {self.settings.mode.value}"
             f"{' (موقوف)' if self.paused else ''}\n"
             f"المنصة: {self.broker.name}\n"
-            f"الرصيد: {acc.equity} | النقد: {acc.cash_available}\n"
-            f"الصفقات المفتوحة: {acc.open_positions}\n"
-            f"توصيات معلّقة: {len(self._pending)}"
         )
+        try:
+            acc = self.broker.get_account_state()
+            body = (
+                f"الرصيد: {acc.equity} | النقد: {acc.cash_available}\n"
+                f"الصفقات المفتوحة: {acc.open_positions}\n"
+            )
+        except Exception as exc:  # مفاتيح غلط / المنصة غير متاحة
+            body = (
+                "⚠️ تعذّر الاتصال بالمنصة — تحقّق من مفاتيح Alpaca في الإعدادات.\n"
+                f"({str(exc)[:80]})\n"
+            )
+        return head + body + f"توصيات معلّقة: {len(self._pending)}"
 
     def _execute(self, rec) -> None:
         client_order_id = f"{rec.symbol}-{uuid.uuid4().hex[:12]}"  # مفتاح تفرّد
