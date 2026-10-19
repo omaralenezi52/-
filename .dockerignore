@@ -1,0 +1,12 @@
+trading-bot/.venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+.env
+**/.env
+*.db
+.git/
+trading-bot/tests/
+images/
+tracks/
+*.html
