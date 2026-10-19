@@ -23,5 +23,5 @@ USER appuser
 # المنفذ الافتراضي للـ Webhook
 EXPOSE 8000
 
-# الافتراضي: خادم الـ Webhook. للحلقة الحية بدّل الأمر عند التشغيل.
-CMD ["uvicorn", "tradingbot.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+# نقطة التشغيل الموحّدة: Webhook + الحلقة الحية + بوت تليجرام معاً.
+CMD ["python", "-m", "tradingbot.main"]

@@ -22,6 +22,6 @@ USER appuser
 
 EXPOSE 8000
 
-# الافتراضي: خادم الـ Webhook. للحلقة الحية، غيّر الأمر في إعدادات المنصة إلى:
-#   python -m tradingbot.run_live AAPL MSFT NVDA
-CMD ["uvicorn", "tradingbot.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+# نقطة التشغيل الموحّدة: Webhook + الحلقة الحية + بوت تليجرام معاً.
+# الرموز عبر SYMBOLS، المنفذ عبر PORT (الافتراضي 8000).
+CMD ["python", "-m", "tradingbot.main"]
