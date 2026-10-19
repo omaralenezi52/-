@@ -4,6 +4,7 @@ uvicorn[standard]>=0.32
 pydantic>=2.9
 httpx>=0.27
 python-dotenv>=1.0
+schedule>=1.2          # جدولة الحلقة الحية
 
 # التحليل الفني — حساب المؤشرات بتحكم كامل (تطابق Backtest/Live)
 numpy>=1.26
