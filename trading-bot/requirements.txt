@@ -19,5 +19,8 @@ alpaca-py>=0.33
 # التنفيذ عبر Interactive Brokers (بديل؛ يحتاج TWS/Gateway)
 ib_insync>=0.9.86
 
+# قاعدة بيانات الذاكرة الدائمة (Postgres للإنتاج؛ SQLite مدمج افتراضياً)
+psycopg[binary]>=3.2
+
 # الاختبارات
 pytest>=8.3

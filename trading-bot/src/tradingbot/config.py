@@ -32,6 +32,8 @@ class Settings:
     alpaca_secret_key: str = ""
     alpaca_paper: bool = True
     broker: str = "paper"          # paper | alpaca | ibkr | derayah
+    # قاعدة بيانات الذاكرة: DATABASE_URL (Postgres) للإنتاج، وإلا SQLite محلي
+    database_url: str = ""
     # وضع التشغيل الافتراضي — الأكثر أماناً
     mode: TradeMode = TradeMode.ADVISOR
 
@@ -68,5 +70,6 @@ class Settings:
             alpaca_secret_key=os.environ.get("ALPACA_SECRET_KEY", "").strip(),
             alpaca_paper=os.environ.get("ALPACA_PAPER", "true").strip().lower() in ("true", "1", "yes"),
             broker=os.environ.get("BROKER", "paper").strip().lower(),
+            database_url=os.environ.get("DATABASE_URL", "").strip(),
             mode=mode,
         )

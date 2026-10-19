@@ -69,6 +69,14 @@ class TradingApp:
         self._pending: dict = {}          # توصيات تنتظر موافقة SEMI_AUTO
         self.last_read: dict = {}         # آخر قراءة سوق لكل رمز (للتشخيص)
         self.live_loop = None             # يُضبط في main لتفعيل /diag
+        # دفتر الصفقات (الذاكرة الدائمة) — لا يُسقِط النظام لو فشل
+        try:
+            from .journal.trade_journal import TradeJournal
+            self.journal = TradeJournal(database_url=settings.database_url)
+            logger.info("دفتر الصفقات: %s", "Postgres" if self.journal.is_postgres else "SQLite")
+        except Exception:
+            logger.exception("تعذّر تهيئة دفتر الصفقات — المتابعة بدونه")
+            self.journal = None
 
     def handle_signal(self, signal: Signal) -> None:
         """المعالج المربوط بالـ Webhook: يحلّل، يوصي، ثم ينفّذ حسب الوضع."""
@@ -96,6 +104,13 @@ class TradingApp:
             "confidence": rec.confidence,
             "time": datetime.now(timezone.utc).strftime("%H:%M:%S"),
         }
+
+        # نسجّل كل توصية في الذاكرة الدائمة
+        if self.journal is not None:
+            try:
+                self.journal.log_recommendation(rec)
+            except Exception:
+                logger.exception("فشل تسجيل التوصية في الدفتر")
 
         if self.paused:
             logger.info("البوت موقوف مؤقتاً (/pause) — تجاهل %s", signal.symbol)
@@ -151,6 +166,23 @@ class TradingApp:
             )
         return head + body + f"توصيات معلّقة: {len(self._pending)}"
 
+    def stats_text(self) -> str:
+        """ملخص الأداء من دفتر الصفقات (أمر /stats)."""
+        if self.journal is None:
+            return "📒 الدفتر غير مُفعّل."
+        try:
+            s = self.journal.stats()
+        except Exception as exc:
+            return f"⚠️ تعذّر قراءة الدفتر: {str(exc)[:80]}"
+        return (
+            f"📒 أداء البوت (من الذاكرة الدائمة)\n"
+            f"إجمالي التوصيات: {s['total_recommendations']}\n"
+            f"صفقات مفتوحة: {s['open_trades']}\n"
+            f"صفقات مغلقة: {s['closed_trades']}\n"
+            f"نسبة النجاح: {s['win_rate']*100:.0f}% ({s['wins']}/{s['closed_trades']})\n"
+            f"صافي الربح/الخسارة: {s['total_pnl']}"
+        )
+
     def diagnose_text(self) -> str:
         """يجبر دورة قراءة فورية ويعرض ما قرأه البوت من السوق (أمر /diag)."""
         if self.live_loop is not None:
@@ -176,6 +208,11 @@ class TradingApp:
         try:
             result = self.broker.place_bracket_order(rec.plan, client_order_id)
             logger.info("نُفّذت الصفقة: %s (%s)", result.order_id, result.status)
+            if self.journal is not None:
+                try:
+                    self.journal.log_trade(rec, client_order_id)
+                except Exception:
+                    logger.exception("فشل تسجيل الصفقة في الدفتر")
         except NotSupportedError as exc:
             logger.warning("المنصة لا تدعم التنفيذ الآلي: %s — إشعار فقط", exc)
         except Exception:

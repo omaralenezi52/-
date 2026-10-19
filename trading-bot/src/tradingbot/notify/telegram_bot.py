@@ -51,12 +51,15 @@ class TelegramBot:
             return ("🤖 أوامر البوت:\n"
                     "/status — حالة البوت والحساب\n"
                     "/diag — فحص السوق الآن (دليل القراءة)\n"
+                    "/stats — أداء البوت من الذاكرة\n"
                     "/pause — إيقاف التداول مؤقتاً\n"
                     "/resume — استئناف التداول")
         if text == "/status":
             return self.app.status_text()
         if text == "/diag":
             return self.app.diagnose_text()
+        if text == "/stats":
+            return self.app.stats_text()
         if text == "/pause":
             self.app.paused = True
             return "⏸️ أُوقف التداول مؤقتاً. /resume للاستئناف."
