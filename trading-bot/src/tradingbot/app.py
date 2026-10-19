@@ -67,6 +67,8 @@ class TradingApp:
         self.broker = broker or build_broker(settings)
         self.paused = False               # /pause من تليجرام
         self._pending: dict = {}          # توصيات تنتظر موافقة SEMI_AUTO
+        self.last_read: dict = {}         # آخر قراءة سوق لكل رمز (للتشخيص)
+        self.live_loop = None             # يُضبط في main لتفعيل /diag
 
     def handle_signal(self, signal: Signal) -> None:
         """المعالج المربوط بالـ Webhook: يحلّل، يوصي، ثم ينفّذ حسب الوضع."""
@@ -83,6 +85,17 @@ class TradingApp:
             analyst=self.analyst,
             features=features,
         )
+
+        # نسجّل آخر قراءة لكل رمز (دليل أنه يقرأ السوق — يظهر في /diag)
+        from datetime import datetime, timezone
+        self.last_read[signal.symbol] = {
+            "price": features.get("close"),
+            "rsi": features.get("rsi"),
+            "regime": rec.regime.value,
+            "decision": rec.decision.value,
+            "confidence": rec.confidence,
+            "time": datetime.now(timezone.utc).strftime("%H:%M:%S"),
+        }
 
         if self.paused:
             logger.info("البوت موقوف مؤقتاً (/pause) — تجاهل %s", signal.symbol)
@@ -137,6 +150,26 @@ class TradingApp:
                 f"({str(exc)[:80]})\n"
             )
         return head + body + f"توصيات معلّقة: {len(self._pending)}"
+
+    def diagnose_text(self) -> str:
+        """يجبر دورة قراءة فورية ويعرض ما قرأه البوت من السوق (أمر /diag)."""
+        if self.live_loop is not None:
+            try:
+                self.live_loop.run_cycle()
+            except Exception as exc:
+                return f"⚠️ فشل فحص السوق: {str(exc)[:100]}"
+
+        if not self.last_read:
+            return ("🔍 لم تُقرأ بيانات بعد.\n"
+                    "قد يكون السوق مغلقاً أو لم تكتمل أول دورة.")
+
+        lines = ["🔍 آخر قراءة للسوق:"]
+        for sym, d in self.last_read.items():
+            lines.append(
+                f"• {sym}: السعر {d['price']} | RSI {d['rsi']:.0f} | "
+                f"{d['regime']} → {d['decision']} ({d['confidence']:.0%}) [{d['time']}]"
+            )
+        return "\n".join(lines)
 
     def _execute(self, rec) -> None:
         client_order_id = f"{rec.symbol}-{uuid.uuid4().hex[:12]}"  # مفتاح تفرّد

@@ -46,6 +46,7 @@ def _start_telegram(app: TradingApp, settings: Settings) -> None:
 def _start_live_loop(app: TradingApp, settings: Settings, symbols: list[str]) -> None:
     feed = AlpacaDataFeed(settings.alpaca_api_key, settings.alpaca_secret_key)
     loop = LiveLoop(app, feed, symbols, timeframe=os.environ.get("TIMEFRAME", "1h"))
+    app.live_loop = loop   # يتيح أمر /diag في تليجرام
 
     def worker():
         schedule.every().hour.at(":01").do(loop.run_cycle)
