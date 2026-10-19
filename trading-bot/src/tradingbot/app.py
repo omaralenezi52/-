@@ -65,6 +65,8 @@ class TradingApp:
         self.analyst = build_analyst(settings.anthropic_api_key, settings.analyst_model)
         self.notifier = TelegramNotifier(settings.telegram_token, settings.telegram_chat_id)
         self.broker = broker or build_broker(settings)
+        self.paused = False               # /pause من تليجرام
+        self._pending: dict = {}          # توصيات تنتظر موافقة SEMI_AUTO
 
     def handle_signal(self, signal: Signal) -> None:
         """المعالج المربوط بالـ Webhook: يحلّل، يوصي، ثم ينفّذ حسب الوضع."""
@@ -82,15 +84,51 @@ class TradingApp:
             features=features,
         )
 
-        # التوصية تُرسل دائماً على تليجرام (في كل الأوضاع)
-        self.notifier.send(rec)
+        if self.paused:
+            logger.info("البوت موقوف مؤقتاً (/pause) — تجاهل %s", signal.symbol)
+            return
 
-        # التنفيذ فقط في FULL_AUTO وعند توصية قابلة للتنفيذ
-        if self.settings.mode == TradeMode.FULL_AUTO and rec.is_actionable:
+        if not rec.is_actionable:
+            self.notifier.send(rec)   # توصية انتظار/رفض بلا أزرار
+            return
+
+        if self.settings.mode == TradeMode.FULL_AUTO:
+            self.notifier.send(rec)
             self._execute(rec)
-        elif rec.is_actionable:
-            logger.info("توصية %s جاهزة — بانتظار التنفيذ اليدوي/الموافقة (%s)",
-                        rec.decision.value, self.settings.mode.value)
+        elif self.settings.mode == TradeMode.SEMI_AUTO:
+            # نخزّن التوصية ونرسلها بأزرار موافقة
+            approval_id = uuid.uuid4().hex[:10]
+            self._pending[approval_id] = rec
+            self.notifier.send(rec, approval_id=approval_id)
+            logger.info("توصية %s بانتظار موافقتك في تليجرام", rec.symbol)
+        else:  # ADVISOR
+            self.notifier.send(rec)
+
+    def approve(self, approval_id: str) -> str:
+        """ينفّذ توصية معلّقة بعد موافقة المستخدم (من زر تليجرام)."""
+        rec = self._pending.pop(approval_id, None)
+        if rec is None:
+            return "⚠️ التوصية لم تعد متاحة (نُفّذت أو انتهت)."
+        self._execute(rec)
+        return f"✅ نُفّذت: {rec.decision.value} {rec.symbol}"
+
+    def reject(self, approval_id: str) -> str:
+        """يتجاهل توصية معلّقة."""
+        rec = self._pending.pop(approval_id, None)
+        return "❌ تم التجاهل." if rec else "⚠️ التوصية لم تعد متاحة."
+
+    def status_text(self) -> str:
+        """ملخص حالة البوت لأمر /status."""
+        acc = self.broker.get_account_state()
+        return (
+            f"🤖 حالة البوت\n"
+            f"الوضع: {self.settings.mode.value}"
+            f"{' (موقوف)' if self.paused else ''}\n"
+            f"المنصة: {self.broker.name}\n"
+            f"الرصيد: {acc.equity} | النقد: {acc.cash_available}\n"
+            f"الصفقات المفتوحة: {acc.open_positions}\n"
+            f"توصيات معلّقة: {len(self._pending)}"
+        )
 
     def _execute(self, rec) -> None:
         client_order_id = f"{rec.symbol}-{uuid.uuid4().hex[:12]}"  # مفتاح تفرّد

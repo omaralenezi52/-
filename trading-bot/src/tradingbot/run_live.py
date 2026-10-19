@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import sys
+import threading
 import time
 
 import schedule
@@ -18,6 +19,7 @@ from .app import TradingApp
 from .config import Settings
 from .data.alpaca_feed import AlpacaDataFeed
 from .live_loop import LiveLoop
+from .notify.telegram_bot import TelegramBot
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,6 +36,12 @@ def main() -> None:
     loop = LiveLoop(app, feed, symbols, timeframe="1h")
 
     logger.info("بدء الحلقة الحية | الرموز=%s | الوضع=%s", symbols, settings.mode.value)
+
+    # بوت تليجرام التفاعلي في خيط منفصل (أزرار الموافقة + الأوامر)
+    if settings.telegram_token and settings.telegram_chat_id:
+        bot = TelegramBot(app, settings.telegram_token, settings.telegram_chat_id)
+        threading.Thread(target=bot.run, daemon=True).start()
+        logger.info("بوت تليجرام التفاعلي يعمل")
 
     # يشتغل بعد دقيقة من رأس كل ساعة (الشمعة أُغلقت وثُبّتت)
     schedule.every().hour.at(":01").do(loop.run_cycle)

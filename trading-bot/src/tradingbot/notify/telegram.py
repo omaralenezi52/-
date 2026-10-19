@@ -50,20 +50,34 @@ class TelegramNotifier:
         self.token = token
         self.chat_id = chat_id
 
-    def send(self, rec: Recommendation) -> bool:
+    def send(self, rec: Recommendation, approval_id: str | None = None) -> bool:
+        """
+        يرسل التوصية. لو مُرِّر approval_id، يضيف أزرار ✅/❌ (وضع SEMI_AUTO).
+        """
         text = format_recommendation(rec)
+        reply_markup = None
+        if approval_id:
+            reply_markup = {
+                "inline_keyboard": [[
+                    {"text": "✅ تنفيذ", "callback_data": f"exec:{approval_id}"},
+                    {"text": "❌ تجاهل", "callback_data": f"skip:{approval_id}"},
+                ]]
+            }
+        return self.send_text(text, reply_markup)
+
+    def send_text(self, text: str, reply_markup: dict | None = None) -> bool:
+        """يرسل نصاً عاماً (للتنبيهات وردود الأوامر)."""
         if not self.token or not self.chat_id:
             logger.info("تليجرام غير مُهيّأ — الرسالة:\n%s", text)
             return False
         try:
             import httpx  # استيراد كسول
 
+            payload = {"chat_id": self.chat_id, "text": text}
+            if reply_markup is not None:
+                payload["reply_markup"] = reply_markup
             url = f"https://api.telegram.org/bot{self.token}/sendMessage"
-            resp = httpx.post(
-                url,
-                json={"chat_id": self.chat_id, "text": text},
-                timeout=10.0,
-            )
+            resp = httpx.post(url, json=payload, timeout=10.0)
             resp.raise_for_status()
             return True
         except Exception:
