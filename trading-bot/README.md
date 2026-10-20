@@ -99,7 +99,9 @@ IBKR_PORT=7497         # 7497 = Paper، 7496 = Live
 - [x] ربط IBKR الفعلي (`ib_insync`) + تجميع كامل (Wiring) جاهز للبيانات
 - [x] ربط Alpaca (تنفيذ + جلب بيانات سحابي) جاهز للمفاتيح
 - [x] الحلقة الحية (جلب → تحليل → قرار → تنفيذ) ذاتية التشغيل
-- [x] بوت تليجرام تفاعلي: أزرار ✅/❌ + أوامر /status /pause /resume
+- [x] بوت تليجرام تفاعلي: أزرار ✅/❌ + أوامر /status /diag /stats /health /pause /resume
+- [x] Trade Journal دائم (Postgres/SQLite)
+- [x] طبقات احترافية: إدارة محفظة + Reconciliation + مراقبة (dead-man) + Walk-forward
 - [ ] Paper trading أسابيع قبل أي حساب حقيقي
 
 ## الاختبار التاريخي

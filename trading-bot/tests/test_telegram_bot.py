@@ -23,6 +23,7 @@ def make_app(mode=TradeMode.SEMI_AUTO):
     settings = Settings(webhook_secret="x" * 12, mode=mode, telegram_chat_id="99")
     app = TradingApp(settings, broker=PaperBroker(starting_equity=Decimal("100000")))
     app.analyst = ConfirmAnalyst()
+    app.journal = None   # عزل: بلا جورنال دائم في الاختبار
     return app
 
 

@@ -75,6 +75,23 @@ def main() -> None:
     _start_telegram(app, settings)
     _start_live_loop(app, settings, symbols)
 
+    # المطابقة عند الإقلاع + فحص صحة دوري (طبقات احترافية)
+    from .reconcile import Reconciler
+    reconciler = Reconciler(app.broker, app.journal, app.notifier)
+    try:
+        reconciler.reconcile()   # مطابقة الحالة مع المنصة عند البدء
+    except Exception:
+        logger.exception("فشل المطابقة الأولية")
+
+    def _periodic_health():
+        app.monitor.check()           # dead-man switch
+        try:
+            reconciler.reconcile()    # مطابقة دورية
+        except Exception:
+            logger.exception("فشل المطابقة الدورية")
+
+    schedule.every(30).minutes.do(_periodic_health)
+
     # خادم الـ Webhook في الخيط الرئيسي (يفتح المنفذ للمنصة)
     webhook_app = create_app(settings, on_signal=app.handle_signal)
     uvicorn.run(webhook_app, host="0.0.0.0", port=port, log_level="info")

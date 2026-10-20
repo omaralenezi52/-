@@ -31,6 +31,7 @@ def test_full_auto_executes_on_paper():
     broker = PaperBroker(starting_equity=Decimal("100000"))
     app = TradingApp(settings, broker=broker)
     app.analyst = ConfirmAnalyst()  # حقن محلل مؤكِّد
+    app.journal = None              # عزل: بلا جورنال دائم في الاختبار
 
     before = broker.get_account_state().open_positions
     app.handle_signal(make_signal())

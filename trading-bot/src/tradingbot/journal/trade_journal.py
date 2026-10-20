@@ -161,6 +161,15 @@ class TradeJournal:
             "total_pnl": round(sum(pnls), 2),
         }
 
+    def open_positions(self) -> list[dict]:
+        """الصفقات المفتوحة مع قيمتها التقديرية (للمحفظة)."""
+        rows = self._fetchall(
+            "SELECT symbol, entry, quantity FROM trades WHERE status='OPEN'")
+        return [
+            {"symbol": r[0], "market_value": (r[1] or 0) * (r[2] or 0)}
+            for r in rows
+        ]
+
     def recent_trades(self, limit: int = 5) -> list[dict]:
         rows = self._fetchall(
             "SELECT symbol, side, entry, pnl, status FROM trades ORDER BY id DESC LIMIT ?",

@@ -52,6 +52,7 @@ class TelegramBot:
                     "/status — حالة البوت والحساب\n"
                     "/diag — فحص السوق الآن (دليل القراءة)\n"
                     "/stats — أداء البوت من الذاكرة\n"
+                    "/health — صحة النظام (نبض)\n"
                     "/pause — إيقاف التداول مؤقتاً\n"
                     "/resume — استئناف التداول")
         if text == "/status":
@@ -60,6 +61,8 @@ class TelegramBot:
             return self.app.diagnose_text()
         if text == "/stats":
             return self.app.stats_text()
+        if text == "/health":
+            return self.app.monitor.health_text()
         if text == "/pause":
             self.app.paused = True
             return "⏸️ أُوقف التداول مؤقتاً. /resume للاستئناف."

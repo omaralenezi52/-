@@ -69,6 +69,11 @@ class TradingApp:
         self._pending: dict = {}          # توصيات تنتظر موافقة SEMI_AUTO
         self.last_read: dict = {}         # آخر قراءة سوق لكل رمز (للتشخيص)
         self.live_loop = None             # يُضبط في main لتفعيل /diag
+        # الطبقات الاحترافية
+        from .domain.portfolio import PortfolioManager
+        from .monitor import HealthMonitor
+        self.portfolio = PortfolioManager()
+        self.monitor = HealthMonitor(notifier=self.notifier)
         # دفتر الصفقات (الذاكرة الدائمة) — لا يُسقِط النظام لو فشل
         try:
             from .journal.trade_journal import TradeJournal
@@ -80,6 +85,7 @@ class TradingApp:
 
     def handle_signal(self, signal: Signal) -> None:
         """المعالج المربوط بالـ Webhook: يحلّل، يوصي، ثم ينفّذ حسب الوضع."""
+        self.monitor.record_success()  # وصلت إشارة = النظام حيّ ويقرأ
         features = signal.indicators or {}
         evidences = features_to_evidence(features) if features else []
 
@@ -206,7 +212,33 @@ class TradingApp:
                 )
         return "\n".join(lines)
 
+    def _open_positions_snapshot(self):
+        """الصفقات المفتوحة من الجورنال كقائمة OpenPosition (للمحفظة)."""
+        from decimal import Decimal
+
+        from .domain.portfolio import OpenPosition
+        if self.journal is None:
+            return []
+        out = []
+        for p in self.journal.open_positions():
+            out.append(OpenPosition(symbol=p["symbol"],
+                                    market_value=Decimal(str(p["market_value"]))))
+        return out
+
     def _execute(self, rec) -> None:
+        # بوابة المحفظة: تعرّض إجمالي + حد الرمز + حد القطاع المترابط
+        try:
+            acc = self.broker.get_account_state()
+            new_value = rec.plan.quantity * rec.plan.entry
+            positions = self._open_positions_snapshot()
+            pdec = self.portfolio.check(rec.symbol, new_value, acc.equity, positions)
+            if not pdec.approved:
+                logger.info("رفض المحفظة: %s", pdec.reason)
+                self.notifier.send_text(f"⛔ لم تُنفّذ {rec.symbol}: {pdec.reason}")
+                return
+        except Exception:
+            logger.exception("فشل فحص المحفظة — المتابعة بحذر")
+
         client_order_id = f"{rec.symbol}-{uuid.uuid4().hex[:12]}"  # مفتاح تفرّد
         try:
             result = self.broker.place_bracket_order(rec.plan, client_order_id)
