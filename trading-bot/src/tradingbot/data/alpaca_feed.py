@@ -10,9 +10,15 @@ import logging
 
 logger = logging.getLogger("tradingbot.data.alpaca")
 
-# خريطة الأطر الزمنية النصّية إلى وحدات Alpaca (تُحلّ كسولاً عند الاستخدام)
-_TF_MAP = {"1m": (1, "Minute"), "5m": (5, "Minute"), "15m": (15, "Minute"),
-           "1h": (1, "Hour"), "1d": (1, "Day")}
+# خريطة الأطر الزمنية: (العدد، الوحدة، عدد الأيام للرجوع لجلب تاريخ كافٍ)
+# أيام الرجوع سخيّة لأن السوق يفتح ~6.5 ساعة/يوم فقط + عطل نهاية الأسبوع
+_TF_MAP = {
+    "1m": (1, "Minute", 10),
+    "5m": (5, "Minute", 30),
+    "15m": (15, "Minute", 60),
+    "1h": (1, "Hour", 120),
+    "1d": (1, "Day", 500),
+}
 
 
 class AlpacaDataFeed:
@@ -42,13 +48,17 @@ class AlpacaDataFeed:
 
         if timeframe not in _TF_MAP:
             raise ValueError(f"إطار زمني غير مدعوم: {timeframe}")
-        amount, unit = _TF_MAP[timeframe]
+        amount, unit, lookback_days = _TF_MAP[timeframe]
         tf = TimeFrame(amount, getattr(TimeFrameUnit, unit))
+
+        # تاريخ بداية كافٍ لجلب شموع كثيرة (بدونه يرجع IEX بيانات قليلة جداً)
+        from datetime import datetime, timedelta, timezone
+        start = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
         client = self._get_client()
         # feed=IEX: المزوّد المجاني (SIP الافتراضي مدفوع ويفشل للحسابات المجانية)
         req = StockBarsRequest(symbol_or_symbols=symbol, timeframe=tf,
-                               limit=limit, feed=DataFeed.IEX)
+                               start=start, limit=limit, feed=DataFeed.IEX)
         bars = client.get_stock_bars(req)
 
         df = bars.df
