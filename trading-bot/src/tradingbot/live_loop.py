@@ -33,8 +33,10 @@ class LiveLoop:
         """دورة واحدة لرمز واحد: جلب → حساب → قرار → توصية/تنفيذ."""
         try:
             df = self.data_feed.get_candles(symbol, self.timeframe, limit=300)
-        except Exception:
+        except Exception as exc:
             logger.exception("فشل جلب بيانات %s — تخطّي هذه الدورة", symbol)
+            # نسجّل سبب الفشل ليظهر في /diag
+            self.app.last_read[symbol] = {"error": str(exc)[:120]}
             return
 
         try:
@@ -42,6 +44,7 @@ class LiveLoop:
             features = compute_features(df, drop_forming=True)
         except ValueError as exc:
             logger.warning("بيانات غير كافية لـ %s: %s", symbol, exc)
+            self.app.last_read[symbol] = {"error": f"بيانات غير كافية: {exc}"}
             return
 
         # اتجاه الإشارة المرشّح من غلبة الأدلة (نترك DecisionEngine يؤكد/يرفض)

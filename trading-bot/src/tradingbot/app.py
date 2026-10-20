@@ -197,10 +197,13 @@ class TradingApp:
 
         lines = ["🔍 آخر قراءة للسوق:"]
         for sym, d in self.last_read.items():
-            lines.append(
-                f"• {sym}: السعر {d['price']} | RSI {d['rsi']:.0f} | "
-                f"{d['regime']} → {d['decision']} ({d['confidence']:.0%}) [{d['time']}]"
-            )
+            if "error" in d:
+                lines.append(f"• {sym}: ⚠️ {d['error']}")
+            else:
+                lines.append(
+                    f"• {sym}: السعر {d['price']} | RSI {d['rsi']:.0f} | "
+                    f"{d['regime']} → {d['decision']} ({d['confidence']:.0%}) [{d['time']}]"
+                )
         return "\n".join(lines)
 
     def _execute(self, rec) -> None:

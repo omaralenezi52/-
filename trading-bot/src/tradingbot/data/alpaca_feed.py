@@ -36,6 +36,7 @@ class AlpacaDataFeed:
         بأعمدة: open, high, low, close, volume (مرتّبة زمنياً تصاعدياً).
         """
         import pandas as pd
+        from alpaca.data.enums import DataFeed
         from alpaca.data.requests import StockBarsRequest
         from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 
@@ -45,7 +46,9 @@ class AlpacaDataFeed:
         tf = TimeFrame(amount, getattr(TimeFrameUnit, unit))
 
         client = self._get_client()
-        req = StockBarsRequest(symbol_or_symbols=symbol, timeframe=tf, limit=limit)
+        # feed=IEX: المزوّد المجاني (SIP الافتراضي مدفوع ويفشل للحسابات المجانية)
+        req = StockBarsRequest(symbol_or_symbols=symbol, timeframe=tf,
+                               limit=limit, feed=DataFeed.IEX)
         bars = client.get_stock_bars(req)
 
         df = bars.df
